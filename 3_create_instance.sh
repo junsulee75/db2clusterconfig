@@ -4,6 +4,8 @@
 source config.ini # use /bin/bash for reading from the current directory
 source jscommon.sh
 
+MODE=$1
+
 ## Not related to pacemaker, but I need this 
 createUser(){
 
@@ -16,7 +18,7 @@ createUser(){
 		#ssh $HOST "useradd -u 1002 -g db2iadm1 -m -d /home/db2inst1 $INST_USER"
 		#ssh $HOST "useradd -u 1003 -g db2fadm1 -m -d /home/db2fenc1 db2fenc1"
 
-		ssh $SSH_NO_BANNER $HOST "useradd -g db2iadm1 -m -d /home/db2inst1 $INST_USER"  # let's not give id, sometimes failure with conflict   
+		ssh $SSH_NO_BANNER $HOST "useradd -g db2iadm1 -m -d /home/$INST_USER $INST_USER"  # let's not give id, sometimes failure with conflict   
 		ssh $SSH_NO_BANNER $HOST "useradd -g db2fadm1 -m -d /home/db2fenc1 db2fenc1"  
 		
 		#ssh $HOST passwd $INST_USER
@@ -50,9 +52,8 @@ sshkeyGen(){
 
 }
 
-## JS TODO : for now, this is passwordless setting from the 1st host to the 2nd host.   
 setPWLess(){
-	#disp_msglvl1 "passwordless login setting for $INST_USER..."
+	disp_msglvl1 "passwordless login setting from all hosts' root/$INST_USER  to all hosts' remote $INST_USER "
 	
 	for fromhost in $db2hosts  ## only need to set pwless between db2 hosts
 	do
@@ -103,7 +104,7 @@ createInstance(){
 	done
 }
 
-createUser
+createUser 
 sshkeyGen
 setPWLess
 testPWLess

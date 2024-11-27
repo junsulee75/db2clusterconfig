@@ -1,6 +1,9 @@
 # Db2 hadr on pacemaker automatic configurator
 
-Fully automated scripts for creating DB2 HADR / pacemaker environment.   
+Fully automated scripts for creating DB2 with pacemaker cluster environment.   
+The script supports two types.   
+- DB2 HADR with pacemaker
+- Active standby with shared storage. (DB2 manual calls it 'Mutual takeover' )   
 
 ## Contents
 
@@ -63,15 +66,26 @@ VIP="123.123.123.123"     ## Virtual IP address to use. Again !! please change t
 
 4. Execute script
 
+go to the downloaded script path and run. (By default, it creates HADR with pacemaker cluster. )   
 ```
-cd hadr_pacemaker_on_fyre
+cd db2clusterconfig
 ./install.sh
 ```
 
-See the [terminal screen output](screen_output.md) how it looks like.      
+For shared storage, give 'shared' option.      
+```
+./install.sh shared
+```
+
+If you have any doubt, see the terminal output how it looks like.   
+
+[Terminal output:HADR pacemaker](screen_output.md)      
+[Terminal output:Active standby shared storage with pacemaker](screen_output_shared.md)       
 
 [contents](#contents)   
 
 ## Reference   
 
-[Pacemaker versions shipped in Db2 version 11.5](https://www.ibm.com/docs/en/db2/11.5?topic=manager-supported-software-hardware-pacemaker)   
+[Pacemaker versions shipped in Db2 version 11.5](https://www.ibm.com/docs/en/db2/11.5?topic=manager-supported-software-hardware-pacemaker)  
+
+[Pacemaker active standby shared storage](https://www.ibm.com/docs/en/db2/11.5?topic=option-creating-pacemaker-managed-mutual-failover-db2-instance)     

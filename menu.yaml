@@ -4,7 +4,7 @@ SHELLCONFIG : config.ini
 ENV :
     TESTENV : testenv
 
-Db2 hadr and pacemaker setup :
+Db2 hadr and pacemaker :
     NOTE : HADR and pacemaker
 
     Prereq. packages installation : 1_prereq.sh
@@ -13,8 +13,20 @@ Db2 hadr and pacemaker setup :
     HADR configuration : 4_hadr_conf.sh
     Pacemaker configuration : 5_pacemaker.sh
 
-MISC tests :
-    NOTE : Future usage 
+iscsi operations :
+    NOTE : iscci related
 
-    test1 : test1.sh
-    test2 : test2.sh
+    setup iscsi target : iscsiTarget.sh
+    setup iscsi member clients : iscsiMember.sh
+
+Db2 active standby shared storage with pacemaker :
+    NOTE : Db2 active standby shared storage with pacemaker 
+
+    Create a shared file system : crfs.sh
+    create an instance user and instance for shared : create_instance_shared.sh
+    Pacemaker configuration for shared storage cluster : 5_pacemaker.sh shared
+
+Db2 operations :
+    NOTE : DB2 related operations   
+
+    Create a DB on the current host (optional for shared storage) : crDB.sh

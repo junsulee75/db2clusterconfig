@@ -4,6 +4,19 @@
 source config.ini # use /bin/bash for reading from the current directory
 source jscommon.sh
 
+# to be flexible to take parameters 
+if [ -z "$1" ]; then
+	MODE="" # no input or invalid input would be HADR
+else 
+    MODE="$1" # shared
+fi
+
+if [ "$MODE" = "shared" ];then
+	print1 "Check if DB2 instance is up on $headhost (Running db2pd -edus)"
+	ssh $SSH_NO_BANNER $INST_USER@$headhost "db2pd -edus"
+	cmdRetChk
+fi
+
 
 USER_HOME=$(eval echo ~$INST_USER)
 echo "Home directory of $INST_USER : |$USER_HOME|"
@@ -24,6 +37,7 @@ createDomain(){
 	$USER_HOME/sqllib/bin/db2cm -cluster -create -domain db2domain -host $PRIMARY_HOST -publicEthernet eth0 -host $STANDBY_HOST -publicEthernet eth0 -remote_cmd "ssh $SSH_NO_BANNER" 
 	crm status
 }
+
 createInstanceResource(){
 
     disp_msglvl1 "creating instance resources..."
@@ -31,13 +45,28 @@ createInstanceResource(){
 	$USER_HOME/sqllib/bin/db2cm -create -instance $REMOTE_INST -host $STANDBY_HOST -remote_cmd "ssh $SSH_NO_BANNER" 
 	crm status
 }
+
+createPartition(){
+
+	if [ -z "$1" ]; then
+		echo "partition number is not specified. Exiting !! "
+		exit 1
+	fi
+    disp_msglvl1 "creating partition resources for partition $1"
+	$USER_HOME/sqllib/bin/db2cm -create -partition $1 -instance $INST_USER -remote_cmd "ssh $SSH_NO_BANNER" 
+	crm status
+}
+
 createDBResource(){
 
     disp_msglvl1 "creating DB resource..."
 	$USER_HOME/sqllib/bin/db2cm -create -db $DBNAME -instance $INST_USER -remote_cmd "ssh $SSH_NO_BANNER" 
 	crm status
 }
+
 createVIP(){
+
+	PARTNUM="$1" # used only for shared
 
 	if [ "$VIP" = "123.123.123.123" ] || [ -z "$VIP" ] ; then   # not changed or not set
 
@@ -65,7 +94,11 @@ createVIP(){
 
 
     disp_msglvl1 "creating VIP resource..."
-	$USER_HOME/sqllib/bin/db2cm -create -primaryVIP $VIP -db $DBNAME -instance $INST_USER -remote_cmd "ssh $SSH_NO_BANNER" 
+	if [ "$MODE" = "shared" ]; then 
+		$USER_HOME/sqllib/bin/db2cm -create -primaryVIP $VIP -partition $1 -instance $INST_USER -remote_cmd "ssh $SSH_NO_BANNER" 
+	else
+		$USER_HOME/sqllib/bin/db2cm -create -primaryVIP $VIP -db $DBNAME -instance $INST_USER -remote_cmd "ssh $SSH_NO_BANNER" 
+	fi
 	## TODO : fix error Error: the VIP address 10.11.71.150 is not within the same subnet as host with IP 10.11.100.236
 	##        In this case, the IP 10.11.100.50 worked.   
 	crm status
@@ -75,6 +108,19 @@ createVIP(){
 }
 createQdevice(){
 
+   
+	# Cluster 001 : For Redhat 8.8 and DB2 V11.5.8.0, creating qdevice asks the prompt like below.  
+	#The authenticity of host 'pcmktest1 (10.11.112.80)' can't be established.
+	#ECDSA key fingerprint is SHA256:R5dPDq/JovLwiKAwU3zDWo19eNudqvqUssEdZM5azFs.
+	#Are you sure you want to continue connecting (yes/no/[fingerprint])? yes   <===
+
+	# To suppress the prompt, running ssh manually in advance. 
+	if [[ "$ID" == "rhel" && "$VERSION_ID" == "8.8" ]]; then  ## ## default v11.5.8 for Redhat 8.8
+		disp_msglvl2 "Passwordless ssh test to $PRIMARY_HOST. To add known_hosts" 
+		ssh -o StrictHostKeyChecking=no root@${PRIMARY_HOST} date;cmdRetChk
+	fi
+		
+
     disp_msglvl2 "creating Qdevice..."
 	$USER_HOME/sqllib/bin/db2cm -create -qdevice $QUORUM_HOST -remote_cmd "ssh $SSH_NO_BANNER" 
 	sleep 10
@@ -82,12 +128,26 @@ createQdevice(){
 
     disp_msglvl2 "ssh $QUORUM_HOST corosync-qnetd-tool -l"
 	ssh $SSH_NO_BANNER $QUORUM_HOST corosync-qnetd-tool -l
-}
-	
 
+}
+
+cmList(){
+	disp_msglvl2 "Pacemaker cluster configuration : db2cm -list"
+	$USER_HOME/sqllib/bin/db2cm -list
+}	
+
+## common
 chkDb2cm
 createDomain
-createInstanceResource
-createDBResource
-createVIP
+
+if [ "$MODE" = "shared" ]; then
+	createPartition 0	
+	createVIP 0
+else # HADR : default
+	createInstanceResource
+	createDBResource
+	createVIP
+fi
+
 createQdevice
+cmList
