@@ -36,7 +36,9 @@ Example)
 - Size : Any   
 - Quantity : 3        
 
-Following Db2 version will be installed by default. (Tested combination)     
+Following Db2 version will be installed by default. (Tested combination)   
+
+> Currently, only following combinations are tested and supported.     
 
 DB2 V11.5.9.0 on Redhat 8.10    
 DB2 V11.5.8.0 on Redhat 8.8    
@@ -61,8 +63,9 @@ VIP="123.123.123.123"     ## Virtual IP address to use. Again !! please change t
 
 ```    
 
-> NOTE : Check the current IP addresses/subnet and specify VIP in the same subnet.  
-> Also read config.ini and customize parameters as you preferred.   
+> NOTE : Check the current IP addresses/subnet and specify VIP in the same subnet.   
+> For IBM internal Fyre environment,   
+> this script will pick up an available VIP automatically if the parameter in config.ini is not changed.   
 
 4. Execute script
 

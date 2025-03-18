@@ -12,17 +12,17 @@ hadrPacemaker(){
 }
 
 sharedPacemaker(){
-    menu.py 1,1,6   # Prereq. packages installation
-    menu.py 1,2,6    # Db2 installation
+    menu.py 2,1,9   # Prereq. packages installation
+    menu.py 2,2,9    # Db2 installation
 
-    menu.py 2,1,3    # iscsi target
-    menu.py 2,2,3    # iscsi initiators
+    menu.py 2,3,9    # iscsi target
+    menu.py 2,4,9    # iscsi initiators
 
-    menu.py 3,1,4    # create shared file system
-    menu.py 3,2,4    # create user and instance   
-    menu.py 3,3,4    # pacemaker setup for shared storage   
+    menu.py 2,5,9    # create shared file system
+    menu.py 2,6,9    # create user and instance   
+    menu.py 2,7,9    # pacemaker setup for shared storage   
 
-    menu.py 4,1,2    # Creating DB (optional)    
+    menu.py 2,8,9    # Creating DB (optional)    
 }
 
 case "$1" in

@@ -13,18 +13,23 @@ Db2 hadr and pacemaker :
     HADR configuration : 4_hadr_conf.sh
     Pacemaker configuration : 5_pacemaker.sh
 
-iscsi operations :
-    NOTE : iscci related
-
-    setup iscsi target : iscsiTarget.sh
-    setup iscsi member clients : iscsiMember.sh
-
-Db2 active standby shared storage with pacemaker :
+Db2 active standby shared storage with pacemaker (Mutual takeover) :
     NOTE : Db2 active standby shared storage with pacemaker 
 
+    Prereq. packages installation : 1_prereq.sh
+    Db2 installation : 2_db2_install.sh 
+    setup iscsi target : iscsiTarget.sh
+    setup iscsi member clients : iscsiMember.sh
     Create a shared file system : crfs.sh
     create an instance user and instance for shared : create_instance_shared.sh
     Pacemaker configuration for shared storage cluster : 5_pacemaker.sh shared
+    Create a DB on the current host (optional for shared storage) : crDB.sh
+
+iscsi operations :
+    NOTE : iscsi related
+
+    setup iscsi target : iscsiTarget.sh
+    setup iscsi member clients : iscsiMember.sh
 
 Db2 operations :
     NOTE : DB2 related operations   

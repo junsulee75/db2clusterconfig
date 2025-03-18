@@ -18,7 +18,11 @@ installPrereq(){
 		# https://www.ibm.com/docs/en/db2/11.5?topic=pacemaker-prerequisites-integrated-solution-using
 		ssh $SSH_NO_BANNER $HOST yum -y install python3-dnf-plugin-versionlock   ## necessary only on Linux
 
-		ssh $SSH_NO_BANNER $HOST yum -y install compat-openssl10  # db2start: error while loading shared libraries: libcrypto.so.10
+		if [[ "$ID" == "rhel" && "$VERSION_ID" == "9.2" ]]; then
+			ssh $SSH_NO_BANNER $HOST yum -y install compat-openssl11
+		else
+			ssh $SSH_NO_BANNER $HOST yum -y install compat-openssl10  # db2start: error while loading shared libraries: libcrypto.so.10
+		fi
 	done
 }
 
